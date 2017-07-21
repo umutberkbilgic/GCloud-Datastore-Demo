@@ -1,7 +1,7 @@
 # GCloud-Datastore-Demo
 This python console app communicates with Googe Cloud Datastore module. Hurray serverless architecture I say.
 
-Dependancies: pip, virtualenv, google.cloud.datastore
+Dependancies: virtualenv, google.cloud.datastore, pip also helps to set it up
 
 Also set environment variable "GOOGLE_APPLICATION_CREDENTIALS" to your <KEY>.json file you got from Google Cloud App Engine certificate. (or $ sudo gcloud auth login)
 
