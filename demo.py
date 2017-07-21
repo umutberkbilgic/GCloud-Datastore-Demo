@@ -74,10 +74,10 @@ def pretty_print(res):
 		updated_end = res.find(", tz", updated_start)
 		
 		email_start = res.find("email: ") + 7
-		email_end = res.find(",: ", email_start)
+		email_end = res.find(", ", email_start)
 		
 		pass_start = res.find("pass: ") + 6
-		pass_end = res.find("}>", pass_start)
+		pass_end = res.find(", ", pass_start)
 		
 		pretty_users = res[users_start : users_end]
 		pretty_id = res[id_start : id_end]
@@ -207,8 +207,13 @@ while True:
 		
 		pretty_properties = pretty_print(result)
 		print (pretty_properties[0])
+
+	elif (prompt == "/edit" or prompt == "/e"):
+		os.system("gedit datastore.py")
 		
 	elif (prompt == "/find" or prompt == "/f"):
+		print ("Connecting to Google Cloud Datastore...")
+
 		query = datastore_client.query(kind = "users")
 		query.add_filter("id", ">", -1)
 		result = list(query.fetch())
@@ -228,7 +233,7 @@ while True:
 			if (index != -1): # found
 				found_names += user_name_split_list[i] + "\n"
 			
-		print ("Found names: \n" + found_names)
+		print ("\nFound names: \n" + found_names)
 		
 	elif (prompt == "0" or prompt == "exit"):
 		print ("\nCONSOLE: Exiting Datastore console.")
