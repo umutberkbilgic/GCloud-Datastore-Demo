@@ -1,4 +1,4 @@
-# Umut Berk Bilgiç 
+# Umut Berk Bilgic
 # July 2017
 # @ Sebit Information & Education Technologies
 # METU Teknokent, Ankara, Turkey
@@ -57,6 +57,11 @@ def pretty_print(res):
 	splitted_list = shift_list_left(temp_list)
 	
 	pretty_print = ""
+	pretty_users_all = ""
+	pretty_id_all = ""
+	pretty_updated_all = ""
+	pretty_email_all = ""
+	pretty_pass_all = ""
 	
 	for res in splitted_list:
 		users_start = res.find("users, ") + 7
@@ -82,13 +87,20 @@ def pretty_print(res):
 		
 		pretty_updated = format_date(pretty_updated); # fix calendar formatting 
 		
-		pretty_print = pretty_print + "\n________________________\n\nUsername: " + pretty_users + "\nUser ID: " + pretty_id + "\nLast updated: "
-		pretty_print = pretty_print + pretty_updated + "\nE-mail: " + pretty_email + "\nPassword: " + pretty_pass
+		pretty_print += "\n________________________\n\nUsername: " + pretty_users + "\nUser ID: " + pretty_id + "\nLast updated: "
+		pretty_print += pretty_updated + "\nE-mail: " + pretty_email + "\nPassword: " + pretty_pass
+		
+		pretty_users_all += pretty_users + "|" # -> "Tirion Fordring|Sylvanas Windrunner|..."
+		pretty_id_all += pretty_id + "|"
+		pretty_updated_all += pretty_updated + "|"
+		pretty_email_all += pretty_email + "|"
+		pretty_pass_all += pretty_pass + "|"
+		
 	 
-	return [pretty_print, pretty_users, pretty_id, pretty_updated, pretty_email, pretty_pass]
+	return [pretty_print, pretty_users_all, pretty_id_all, pretty_updated_all, pretty_email_all, pretty_pass_all]
 	
 while True:
-	prompt = raw_input("\n...\n\n[1]: display, [2]: add/update, [3]: delete, [4]: search, [0]: exit\n\n>>")
+	prompt = raw_input("\n...\n\n[1]: Display spesific user\n[2]: Add or update user\n[3]: Delete a user\n[4]: Filter\n[0]: Exit\n\n>>")
 	
 	if (prompt == "1" or prompt == "display"):
 		name = raw_input("Username: ")
@@ -178,7 +190,7 @@ while True:
 
 	elif (prompt == "/clear" or prompt == "/c"):
 		os.system("clear")
-	elif (prompt == "/link" or prompt == "l"):
+	elif (prompt == "/link" or prompt == "/l"):
 		os.system("sensible-browser " + project_url)
 		
 	elif (prompt == "/displayalldata" or prompt == "/d"):
@@ -195,6 +207,28 @@ while True:
 		
 		pretty_properties = pretty_print(result)
 		print (pretty_properties[0])
+		
+	elif (prompt == "/find" or prompt == "/f"):
+		query = datastore_client.query(kind = "users")
+		query.add_filter("id", ">", -1)
+		result = list(query.fetch())
+		pretty_properties = pretty_print(result)
+		user_name_list = pretty_properties[1]
+		
+		user_name_split_list = user_name_list.split("|")
+		user_name_split_list_lower = [None] * len(user_name_split_list)
+		
+		user_query = (raw_input("Search for : ")).lower()
+		found_names = ""
+		
+		for i in range(0, len(user_name_split_list)):
+			user_name_split_list_lower[i] = (user_name_split_list[i]).lower()
+			index = (user_name_split_list_lower[i]).find(user_query)
+			
+			if (index != -1): # found
+				found_names += user_name_split_list[i] + "\n"
+			
+		print ("Found names: \n" + found_names)
 		
 	elif (prompt == "0" or prompt == "exit"):
 		print ("\nCONSOLE: Exiting Datastore console.")
