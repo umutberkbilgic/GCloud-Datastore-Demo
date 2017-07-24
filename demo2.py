@@ -151,7 +151,8 @@ while True:
 		current_id = -1
 		
 		print ("Successfully logged out.\n")
-
+		
+		
 	# PROFILE ############################################### MAIN APPLICATION ##############
 	elif (prompt == "4" or prompt.lower() == "profile"):
 		if (is_logged_in):
@@ -162,7 +163,7 @@ while True:
 				print("User ID:  " + str(current_id))
 				print("-----------------------------")
 
-				prompt = raw_input("[1]: Change password, [2]: Post comment, [0]: Return to main menu\n>>")
+				prompt = raw_input("[1]: Change password, [2]: Post comment, [3]: View comments, [0]: Return to main menu\n>>")
 
 				if (prompt == "1"):
 					password = str(getpass.getpass("Enter current password: "))
@@ -209,7 +210,31 @@ while True:
 					
 					c.put(post)
 					
-					print("\nSuccessfully posted comment.\n")
+				elif (prompt == "3"):
+					c = datastore.Client()
+					kind = "comments"
+					
+					query = c.query(kind = "comments")
+					query.add_filter("userid", ">", 0)
+					
+					result_list = list(query.fetch())
+					
+					comment_id_list = []
+					
+					for r in result_list:
+						r = str(r)
+						index_start = r.find("u'comments', ") + 13
+						index_end = r.find("L", index_start)
+						comment_id_list.append(int(r[index_start : index_end]))
+						
+					for id in comment_id_list:	
+						comment_key = c.key(kind, id)
+						ent = client.get(comment_key)
+
+						comment = ent.get("comment")
+						username = ent.get("username")
+						
+						print ("Comment by " + username + ": " + comment + "\n")
 					
 				elif (prompt == "0"):
 					print("\nReturning to the main menu.\n")
