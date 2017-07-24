@@ -99,6 +99,7 @@ def pretty_print(res):
 	 
 	return [pretty_print, pretty_users_all, pretty_id_all, pretty_updated_all, pretty_email_all, pretty_pass_all]
 	
+
 while True:
 	prompt = raw_input("\n...\n\n[1]: Display spesific user\n[2]: Add or update user\n[3]: Delete a user\n[4]: Filter\n[0]: Exit\n\n>>")
 	
@@ -118,43 +119,33 @@ while True:
 		# get the name that will be updated/created
 		name = raw_input("Username: ")
 
-		# does the emtry exist? if so, update if not add
+		# does the entry exist? if so, update if not add
 		key = datastore_client.key(kind, name)
 		ent = datastore_client.get(key)
+		user = datastore.Entity(key)
 		
-		found = (str(ent) != "None")
-
 		# get user query
 		query1 = unicode(raw_input("e-mail:   "))
 		query2 = unicode(raw_input("Password: "))
+		
+		if (ent != None): # If user exists, update everything except the ID
+			count = int(ent.get("id"))
+			
+		else: # add new user
+			# increment local counter and rewrite useridcount.txt
+			count = count + 1
+			countRecord = open("useridcount.txt","w")
+			countRecord.write(str(count))
 
-		# Set which kind and entity is being worked on
-		user_key = datastore_client.key(kind, name)
-		user = datastore.Entity(key = user_key)
-
-		# changes/additions to be made
 		user.update({ 
 			"email":query1, 
 			"pass":query2,
-			"id": count, 
+			"id": count,
 			"updated":datetime.datetime.utcnow() })
-
-		"""# if the user did not exist before update user ID too
-		if (not found):
-			user.update({"id":count})"""
-
+			
 		# send changes to google cloud datastore API
 		datastore_client.put(user)
 
-		# console log
-		print ("\n'" + name + "' has been updated.")
-		print ("User-ID: " + str(count))
-
-		# increment local counter and rewrite useridcount.txt
-		count = count + 1
-		countRecord = open("useridcount.txt","w")
-		countRecord.write(str(count))
-		
 	elif (prompt == "3" or prompt == "delete"):
 		name = raw_input("Username: ")
 		
@@ -240,3 +231,4 @@ while True:
 		exit()
 	else:
 		print ("\nCONSOLE: Not valid.")
+
