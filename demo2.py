@@ -14,6 +14,21 @@ current_username = ""
 current_email = ""
 current_id = -1
 
+def retrieve_user_by_password(password):
+	# returns user id || -1
+	query = client.query(kind = "data")
+	query.add_filter("password", "=", password)
+	
+	result = list(query.fetch())
+	
+	if (result != []): # user exists, return ID
+		result_string = str(result[0])
+		index_start = result_string.find("u'data', ") + 9
+		index_end = result_string.find("L", index_start)
+		return int(result_string[index_start : index_end])	
+	else:
+		return (-1)
+	
 def retrieve_user_by_username(username):
 	# returns user id || -1
 	query = client.query(kind = "data")
@@ -65,23 +80,15 @@ def login(username, password):
 			print("Login successfull!\n")
 		
 			return [True, username, ent.get("email"), user_id]
-		
-def profile(is_logged_in, current_username, current_email, current_id):
-	if (is_logged_in):
-		print("-----------------------------")
-		print("Username: " + current_username)
-		print("E-mail:   " + current_email)
-		print("User ID:  " + str(current_id))
-		print("-----------------------------")
-	else:
-		print("\nPlease login to view your profile.\n")
 
+# Main loop 
 while True:
 	# info
 	print("[1]: Login, [2]: Register, [3]: Logout, [4]: Profile, [0]: Exit")
 	prompt = raw_input("\n>> ")
 	print("")
 	
+	# LOGIN #################################################
 	if (prompt == "1" or prompt.lower() == "login"):
 		
 		if (is_logged_in):
@@ -93,11 +100,13 @@ while True:
 
 			current_list = login(username, password)
 			
+			# update currents			
 			is_logged_in = current_list[0]
 			current_username = current_list[1]
 			current_email = current_list[2]
 			current_id = current_list[3]
-				
+			
+	# REGISTER ##############################################			
 	elif (prompt == "2" or prompt.lower() == "register"):
 		email = raw_input("E-mail address: ")
 		username = raw_input("Username: ")
@@ -131,7 +140,8 @@ while True:
 					client.put(user)
 					
 					print ("Successfully registered as " + username + "\n")
-	# ----------------------------------------------				
+					
+	# LOGOUT ################################################				
 	elif (prompt == "3" or prompt.lower() == "logout"):
 		print("Logging out of '" + current_username + "'...")
 			  
@@ -141,12 +151,82 @@ while True:
 		current_id = -1
 		
 		print ("Successfully logged out.\n")
-		
+
+	# PROFILE ############################################### MAIN APPLICATION ##############
 	elif (prompt == "4" or prompt.lower() == "profile"):
-		profile(is_logged_in, current_username, current_email, current_id)	
-	# ----------------------------------------------
+		if (is_logged_in):
+			while (True):
+				print("-----------------------------")
+				print("Username: " + current_username)
+				print("E-mail:   " + current_email)
+				print("User ID:  " + str(current_id))
+				print("-----------------------------")
+
+				prompt = raw_input("[1]: Change password, [2]: Post comment, [0]: Return to main menu\n>>")
+
+				if (prompt == "1"):
+					password = str(getpass.getpass("Enter current password: "))
+					
+					key = client.key("data", current_id)
+					user = client.get(key)
+					
+					current_password = user.get("password")
+					
+					if (password == current_password):
+						new_password = str(getpass.getpass("Enter your new password: "))
+						c_new_password = str(getpass.getpass("Confirm your new password: "))
+												
+						if (new_password == c_new_password):							
+							user.update({ 
+							"date" : datetime.datetime.utcnow(),
+							"email" : unicode(current_email), 
+							"password" : unicode(new_password),
+							"username" : unicode(current_username) })
+							
+							client.put(user)
+							
+							print("\nSuccessfully updated password.\n")
+							
+						else:
+							print("New passwords did not match. Please try again.")
+					else:
+						print("\nPlease re-enter your current password and try again.\n")
+					
+				elif (prompt == "2"):
+					c = datastore.Client()
+					kind = "comments"
+					
+					comment = raw_input("Enter comment: ")
+					
+					key = c.key(kind)
+					post = datastore.Entity(key)
+					
+					post.update({
+						"comment" : unicode(comment),
+						"username" : unicode(current_username),
+						"userid" : int(current_id),
+						"posttime" : datetime.datetime.utcnow() })
+					
+					c.put(post)
+					
+					print("\nSuccessfully posted comment.\n")
+					
+				elif (prompt == "0"):
+					print("\nReturning to the main menu.\n")
+					break
+				else:
+					print("\nInvalid input.\n")
+				
+		else:
+			print("\nPlease login to view your profile.\n")
+		
+	# EXIT ##################################################
 	elif (prompt == "0" or prompt.lower() == "exit"):
 		print("\nExiting...\n")
 		exit()
+		
+	# INVALID ###############################################
 	else:
 		print("\nInvalid input.\n")
+		
+		
