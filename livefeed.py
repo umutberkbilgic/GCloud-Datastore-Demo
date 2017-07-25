@@ -9,6 +9,7 @@ import time
 import os
 
 client = datastore.Client()
+DELAY = 2
 
 # Main loop 
 while True:
@@ -21,12 +22,12 @@ while True:
 		
 		while (True):
 			
-			
 			c = datastore.Client()
 			kind = "comments"
 
 			query = c.query(kind = "comments")
-			query.add_filter("userid", ">", 0)
+			query.add_filter("posttime", ">", 0)
+			query.order = ["-posttime"]
 
 			result_list = list(query.fetch())
 
@@ -37,8 +38,8 @@ while True:
 				index_start = r.find("u'comments', ") + 13
 				index_end = r.find("L", index_start)
 				comment_id_list.append(int(r[index_start : index_end]))
-
-			os.system("clear")
+			
+			comment_final_list = ""
 			
 			for id in comment_id_list:	
 				comment_key = c.key(kind, id)
@@ -47,13 +48,14 @@ while True:
 				comment = ent.get("comment")
 				username = ent.get("username")
 				
+				comment_final_list += (username + ": " + comment + "\n")
 				
-
-				print ("Comment by " + username + ": " + comment + "\n")
+			# makes things look instant
+			os.system("clear")
+			print comment_final_list
 				
-			time.sleep(4)
-		
-
+			time.sleep(DELAY)
+			
 	elif (prompt == "0" or prompt.lower() == "exit"):
 		print("Exiting...\n")
 		exit()
