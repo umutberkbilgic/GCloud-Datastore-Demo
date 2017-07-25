@@ -6,6 +6,7 @@
 from google.cloud import datastore
 import getpass
 import datetime
+import os
 
 client = datastore.Client()
 
@@ -77,19 +78,21 @@ def login(username, password):
 			print("Wrong password. Please try again.\n")
 			return [False, "", "", -1]
 		else:
+			os.system("clear")
 			print("Login successfull!\n")
 		
 			return [True, username, ent.get("email"), user_id]
 
 # Main loop 
 while True:
-	# info
+	# info	
 	print("[1]: Login, [2]: Register, [3]: Logout, [4]: Profile, [0]: Exit")
 	prompt = raw_input("\n>> ")
 	print("")
 	
 	# LOGIN #################################################
 	if (prompt == "1" or prompt.lower() == "login"):
+		os.system("clear")
 		
 		if (is_logged_in):
 			print("You are already logged in as " + current_username)
@@ -99,7 +102,7 @@ while True:
 			password = str(getpass.getpass("Password: "))
 
 			current_list = login(username, password)
-			
+
 			# update currents			
 			is_logged_in = current_list[0]
 			current_username = current_list[1]
@@ -108,6 +111,8 @@ while True:
 			
 	# REGISTER ##############################################			
 	elif (prompt == "2" or prompt.lower() == "register"):
+		os.system("clear")
+		
 		email = raw_input("E-mail address: ")
 		username = raw_input("Username: ")
 		password = str(getpass.getpass("Password: ")) 
@@ -139,33 +144,43 @@ while True:
 					# send changes to google cloud datastore API
 					client.put(user)
 					
+					os.system("clear")
+					
 					print ("Successfully registered as " + username + "\n")
 					
 	# LOGOUT ################################################				
 	elif (prompt == "3" or prompt.lower() == "logout"):
-		print("Logging out of '" + current_username + "'...")
-			  
-		is_logged_in = False 
-		current_username = ""
-		current_email = ""
-		current_id = -1
+		os.system("clear")
 		
-		print ("Successfully logged out.\n")
+		if not is_logged_in:
+			print("\nYou are already logged out.\n")
+		else:
+			print("Logging out of '" + current_username + "'...")
+
+			is_logged_in = False 
+			current_username = ""
+			current_email = ""
+			current_id = -1
+
+			print ("Successfully logged out.\n")
 		
 		
 	# PROFILE ############################################### MAIN APPLICATION ##############
 	elif (prompt == "4" or prompt.lower() == "profile"):
+		os.system("clear")
+		
 		if (is_logged_in):
 			while (True):
 				print("-----------------------------")
 				print("Username: " + current_username)
 				print("E-mail:   " + current_email)
 				print("User ID:  " + str(current_id))
-				print("-----------------------------")
+				print("-----------------------------\n")
 
 				prompt = raw_input("[1]: Change password, [2]: Post comment, [3]: View comments, [0]: Return to main menu\n>>")
 
 				if (prompt == "1"):
+					os.system("clear")
 					password = str(getpass.getpass("Enter current password: "))
 					
 					key = client.key("data", current_id)
@@ -186,6 +201,8 @@ while True:
 							
 							client.put(user)
 							
+							os.system("clear")
+							
 							print("\nSuccessfully updated password.\n")
 							
 						else:
@@ -194,6 +211,7 @@ while True:
 						print("\nPlease re-enter your current password and try again.\n")
 					
 				elif (prompt == "2"):
+					os.system("clear")
 					c = datastore.Client()
 					kind = "comments"
 					
@@ -211,11 +229,13 @@ while True:
 					c.put(post)
 					
 				elif (prompt == "3"):
+					os.system("clear")
 					c = datastore.Client()
 					kind = "comments"
 					
 					query = c.query(kind = "comments")
 					query.add_filter("userid", ">", 0)
+					query.order = ["-posttime"]
 					
 					result_list = list(query.fetch())
 					
@@ -227,19 +247,27 @@ while True:
 						index_end = r.find("L", index_start)
 						comment_id_list.append(int(r[index_start : index_end]))
 						
+					comment_final_list = ""
+			
 					for id in comment_id_list:	
 						comment_key = c.key(kind, id)
 						ent = client.get(comment_key)
 
 						comment = ent.get("comment")
 						username = ent.get("username")
-						
-						print ("Comment by " + username + ": " + comment + "\n")
+
+						comment_final_list += (username + ": " + comment + "\n")
+				
+					# makes things look instant
+					os.system("clear")
+					print comment_final_list
 					
 				elif (prompt == "0"):
+					os.system("clear")
 					print("\nReturning to the main menu.\n")
 					break
 				else:
+					os.system("clear")
 					print("\nInvalid input.\n")
 				
 		else:
@@ -247,11 +275,17 @@ while True:
 		
 	# EXIT ##################################################
 	elif (prompt == "0" or prompt.lower() == "exit"):
+		os.system("clear")
+		
 		print("\nExiting...\n")
 		exit()
 		
 	# INVALID ###############################################
 	else:
+		os.system("clear")
+		
 		print("\nInvalid input.\n")
+		
+	
 		
 		
