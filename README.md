@@ -9,5 +9,5 @@ Very much tweakable and expandable, very much work in progress.
 
 TODO:
 
-Add indexing, SQL or GQL, incooparate into a node.js FaaS or App engine deployment.
+incooparate into a node.js FaaS or App engine deployment.
 
