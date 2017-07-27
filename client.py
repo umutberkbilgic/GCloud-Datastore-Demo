@@ -2,17 +2,20 @@
 # July 2017
 # @ Sebit Information & Education Technologies
 # METU Teknokent, Ankara, Turkey
-# v1
+# v2
 
 from Tkinter import *
 from google.cloud import datastore
 import datetime
+import tkMessageBox
 
 # GLOBALS
 client = datastore.Client()
 
 def place(thing, r, c, px, py):
 	thing.grid(row = r, column = c, padx = px, pady = py)
+def p(text):
+	tkMessageBox.showwarning("Google Cloud", text)
 
 # PAGES
 class LoginPage():
@@ -53,11 +56,13 @@ class LoginPage():
 		self.entry_password.config(state = "disabled")
 		self.entry_username.config(state = "disabled")
 		self.button_login.config(state = "disabled")
+		self.button_register.config(state = "disabled")
 		
 	def enable(self):
 		self.entry_password.config(state = "normal")
 		self.entry_username.config(state = "normal")
 		self.button_login.config(state = "normal")
+		self.button_register.config(state = "normal")
 		
 	def reset_entries(self):
 		self.entry_password.delete(0, "end")
@@ -86,7 +91,7 @@ class LoginPage():
 		user_id = self.retrieve_user_by_username(username)
 
 		if (user_id == -1):
-			print("User does not exist. Please register.\n")
+			p("User does not exist. Please register.\n")
 			self.reset_entries()
 		else:
 			key = client.key("data", user_id)
@@ -95,7 +100,7 @@ class LoginPage():
 			stored = ent.get("password")
 
 			if (str(password) != str(stored)):
-				print("Wrong password. Please try again.\n")
+				p("Wrong password. Please try again.\n")
 				self.reset_entries()
 				
 			else:
@@ -200,10 +205,10 @@ class RegisterPage:
 		self.entry_username = Entry(self.master, width = 10)
 		self.entry_password = Entry(self.master, show = "*", width = 10)
 		self.entry_c_password= Entry(self.master, show = "*", width = 10)
-		self.label_email = Label(self.master, text = "E-mail:", justify = RIGHT)
-		self.label_username = Label(self.master, text = "Username:", justify = RIGHT)
-		self.label_password = Label(self.master, text = "Password:", justify = RIGHT)
-		self.label_c_password  = Label(self.master, text = "Confirm Password:", justify = RIGHT)
+		self.label_email = Label(self.master, text = "E-mail:")
+		self.label_username = Label(self.master, text = "Username:")
+		self.label_password = Label(self.master, text = "Password:")
+		self.label_c_password  = Label(self.master, text = "Confirm Password:")
 		self.button_register = Button(self.master, text = "Register", command = self.register)
 		
 		place(self.entry_email, 0, 1, 5, 5)
@@ -255,7 +260,7 @@ class RegisterPage:
 		else:
 			return (-1)
 		
-	def quit():
+	def quit(self):
 		self.master.destroy()
 		
 	def register(self):
@@ -268,17 +273,17 @@ class RegisterPage:
 		user_id = self.retrieve_user_by_username(username)
 		
 		if (user_id != -1): # check username
-			print("Username already in use. Please try again.")
+			p("Username already in use. Please try again.")
 			self.reset_entries()
 		else:
 			user_id = self.retrieve_user_by_email(email)
 			
 			if (user_id != -1): # check email
-				print("Email already in use. Please try again.")
+				p("Email already in use. Please try again.")
 				self.reset_entries()
 			else:
 				if (c_password != password): # check password
-					print("Passwords did not match. Please try again.")
+					p("Passwords did not match. Please try again.")
 					self.reset_entries()
 				else:
 					key = client.key("data")
@@ -293,7 +298,7 @@ class RegisterPage:
 					# send changes to google cloud datastore API
 					client.put(user)
 					
-					print ("Successfully registered as " + username + "\n")
+					p("Successfully registered as " + username + "\n")
 					self.reset_entries()
 					self.quit()
 
