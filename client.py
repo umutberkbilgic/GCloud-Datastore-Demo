@@ -2,7 +2,7 @@
 # July 2017
 # @ Sebit Information & Education Technologies
 # METU Teknokent, Ankara, Turkey
-# v2
+# v3
 
 from Tkinter import *
 from google.cloud import datastore
@@ -15,7 +15,22 @@ client = datastore.Client()
 def place(thing, r, c, px, py):
 	thing.grid(row = r, column = c, padx = px, pady = py)
 def p(text):
-	tkMessageBox.showwarning("Google Cloud", text)
+	tkMessageBox.showinfo("Google Cloud", text)
+	
+def retrieve_user_by_username(username):
+		# returns user id || -1
+		query = client.query(kind = "data")
+		query.add_filter("username", "=", username)
+
+		result = list(query.fetch())
+
+		if (result != []): # user exists, return ID
+			result_string = str(result[0])
+			index_start = result_string.find("u'data', ") + 9
+			index_end = result_string.find("L", index_start)
+			return int(result_string[index_start : index_end])	
+		else:
+			return (-1)
 
 # PAGES
 class LoginPage():
@@ -68,27 +83,12 @@ class LoginPage():
 		self.entry_password.delete(0, "end")
 		self.entry_username.delete(0, "end")
 		
-	def retrieve_user_by_username(self, username):
-		# returns user id || -1
-		query = client.query(kind = "data")
-		query.add_filter("username", "=", username)
-
-		result = list(query.fetch())
-
-		if (result != []): # user exists, return ID
-			result_string = str(result[0])
-			index_start = result_string.find("u'data', ") + 9
-			index_end = result_string.find("L", index_start)
-			return int(result_string[index_start : index_end])	
-		else:
-			return (-1)
-		
 	def login(self):
 		username = self.entry_username.get()
 		password = self.entry_password.get()
 
 		# retrieve user
-		user_id = self.retrieve_user_by_username(username)
+		user_id = retrieve_user_by_username(username)
 
 		if (user_id == -1):
 			p("User does not exist. Please register.\n")
@@ -105,7 +105,7 @@ class LoginPage():
 				
 			else:
 				self.username = self.entry_username.get()
-				self.id = self.retrieve_user_by_username(self.username)
+				self.id = retrieve_user_by_username(self.username)
 			
 				self.reset_entries()
 				self.profile()
@@ -138,7 +138,6 @@ class ProfilePage():
 	def logout(self):
 		self.master.destroy()
 		login_page.enable()
-	
 	def post(self):
 		c = datastore.Client()
 		kind = "comments"
@@ -159,6 +158,7 @@ class ProfilePage():
 	def show(self):
 		show_window = Toplevel(self.master)
 		show_page = CommentsPage(show_window)
+		
 		
 class CommentsPage:
 	def __init__(self, master):
@@ -195,6 +195,8 @@ class CommentsPage:
 				
 		self.label_comments = Label(self.master, text = comment_final_str, justify = LEFT)	
 		self.label_comments.pack()
+		
+		
 		
 class RegisterPage:
 	def __init__(self, master):
@@ -245,21 +247,6 @@ class RegisterPage:
 		self.entry_password.delete(0, "end")
 		self.entry_c_password.delete(0, "end")
 		
-	def retrieve_user_by_username(self, username):
-		# returns user id || -1
-		query = client.query(kind = "data")
-		query.add_filter("username", "=", username)
-
-		result = list(query.fetch())
-
-		if (result != []): # user exists, return ID
-			result_string = str(result[0])
-			index_start = result_string.find("u'data', ") + 9
-			index_end = result_string.find("L", index_start)
-			return int(result_string[index_start : index_end])	
-		else:
-			return (-1)
-		
 	def quit(self):
 		self.master.destroy()
 		
@@ -270,7 +257,7 @@ class RegisterPage:
 		c_password = self.entry_c_password.get()
 		
 		# retrieve user
-		user_id = self.retrieve_user_by_username(username)
+		user_id = retrieve_user_by_username(username)
 		
 		if (user_id != -1): # check username
 			p("Username already in use. Please try again.")
