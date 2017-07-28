@@ -2,7 +2,7 @@
 # July 2017
 # @ Sebit Information & Education Technologies
 # METU Teknokent, Ankara, Turkey
-# v3
+# v4
 
 from Tkinter import *
 from google.cloud import datastore
@@ -57,6 +57,15 @@ class LoginPage():
 		# attribute
 		self.username = ""
 		self.id = -1
+		
+		self.master.bind("<Return>", self.enter)
+		self.master.bind("<Escape>", self.escape)
+		
+	def escape(self, event):
+		self.quit()
+		
+	def enter(self, event):
+		self.login()
 		
 	def profile(self):
 		self.disable()
@@ -126,7 +135,7 @@ class ProfilePage():
 		self.entry_comment = Entry(self.master, width = 40)
 		self.button_logout = Button(self.master, text = "Logout", command = self.logout)
 		self.button_post = Button(self.master, text = "Post", command = self.post)
-		self.button_show = Button(self.master, text = "Show", command = self.show)
+		self.button_show = Button(self.master, text = "Show", command = self.comments)
 		
 		#place
 		place(self.label_comment, 0, 0, 5, 5)
@@ -135,9 +144,19 @@ class ProfilePage():
 		place(self.button_post,   1, 1, 5, 5)
 		place(self.button_show,   1, 2, 5, 5)
 		
+		self.master.bind("<Return>", self.enter)
+		self.master.bind("<Escape>", self.escape)
+		
+	def escape(self, event):
+		self.logout()
+		
+	def enter(self, event):
+		self.post()
+		
 	def logout(self):
 		self.master.destroy()
 		login_page.enable()
+		
 	def post(self):
 		c = datastore.Client()
 		kind = "comments"
@@ -155,9 +174,21 @@ class ProfilePage():
 		
 		self.entry_comment.delete(0, "end")
 		
-	def show(self):
-		show_window = Toplevel(self.master)
-		show_page = CommentsPage(show_window)
+	def comments(self):
+		comments_window = Toplevel(self.master)
+		comments_page = CommentsPage(comments_window)
+		
+	def disable(self):
+		self.entry_comment.config(state = "disabled")
+		self.button_logout.config(state = "disabled")
+		self.button_post.config(state = "disabled")
+		self.button_show.config(state = "disabled")
+		
+	def enable(self):
+		self.entry_comment.config(state = "normal")
+		self.button_logout.config(state = "normal")
+		self.button_post.config(state = "normal")
+		self.button_show.config(state = "normal")
 		
 		
 class CommentsPage:
@@ -196,12 +227,16 @@ class CommentsPage:
 		self.label_comments = Label(self.master, text = comment_final_str, justify = LEFT)	
 		self.label_comments.pack()
 		
+		self.master.bind("<Escape>", self.escape)
 		
-		
+	def escape(self, event):
+		self.master.destroy()
+
 class RegisterPage:
 	def __init__(self, master):
 		self.master = master
 		self.master.title("Register")
+		
 		
 		self.entry_email = Entry(self.master, width = 10)
 		self.entry_username = Entry(self.master, width = 10)
