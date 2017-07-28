@@ -2,7 +2,7 @@
 # July 2017
 # @ Sebit Information & Education Technologies
 # METU Teknokent, Ankara, Turkey
-# v5
+# v6
 
 from Tkinter import *
 from google.cloud import datastore
@@ -11,6 +11,7 @@ import tkMessageBox
 
 # GLOBALS
 client = datastore.Client()
+pages = []
 
 def place(thing, r, c, px, py):
 	thing.grid(row = r, column = c, padx = px, pady = py)
@@ -129,6 +130,7 @@ class ProfilePage():
 	def __init__(self, master):
 		self.master = master
 		self.master.title("Profile")
+		self.master.protocol("WM_DELETE_WINDOW", self.logout)
 		
 		# create
 		self.label_comment = Label(self.master, text = "Comment:")
@@ -177,6 +179,8 @@ class ProfilePage():
 		self.entry_comment.delete(0, "end")
 		
 	def comments(self):
+		pages.append(self)
+		self.disable()
 		comments_window = Toplevel(self.master)
 		comments_page = CommentsPage(comments_window)
 		
@@ -197,6 +201,7 @@ class CommentsPage:
 	def __init__(self, master):
 		self.master = master
 		self.master.title("Comments")
+		self.master.protocol("WM_DELETE_WINDOW", self.quit)
 		
 		c = datastore.Client()
 		kind = "comments"
@@ -232,7 +237,13 @@ class CommentsPage:
 		self.master.bind("<Escape>", self.escape)
 		
 	def escape(self, event):
+		quit()
+		
+	def quit(self):
+		pages.pop().enable()
 		self.master.destroy()
+		
+		
 class RegisterPage:
 	def __init__(self, master):
 		self.master = master
