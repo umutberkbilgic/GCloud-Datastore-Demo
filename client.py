@@ -2,7 +2,7 @@
 # July 2017
 # @ Sebit Information & Education Technologies
 # METU Teknokent, Ankara, Turkey
-# v4
+# v5
 
 from Tkinter import *
 from google.cloud import datastore
@@ -172,6 +172,8 @@ class ProfilePage():
 		
 		c.put(post)
 		
+		p("Comment posted!")
+		
 		self.entry_comment.delete(0, "end")
 		
 	def comments(self):
@@ -231,12 +233,11 @@ class CommentsPage:
 		
 	def escape(self, event):
 		self.master.destroy()
-
 class RegisterPage:
 	def __init__(self, master):
 		self.master = master
 		self.master.title("Register")
-		
+		self.master.protocol("WM_DELETE_WINDOW", self.quit)
 		
 		self.entry_email = Entry(self.master, width = 10)
 		self.entry_username = Entry(self.master, width = 10)
@@ -252,11 +253,20 @@ class RegisterPage:
 		place(self.entry_username, 1, 1, 5, 5)
 		place(self.entry_password, 2, 1, 5, 5)
 		place(self.entry_c_password, 3, 1, 5, 5)
+		place(self.button_register, 4, 1, 5, 5)
 		place(self.label_email, 0, 0, 5, 5)
 		place(self.label_username, 1, 0, 5, 5)
 		place(self.label_password, 2, 0, 5, 5)
 		place(self.label_c_password, 3, 0, 5, 5)
-		place(self.button_register, 4, 1, 5, 5)
+		
+		self.master.bind("<Return>", self.enter)
+		self.master.bind("<Escape>", self.escape)
+		
+	def escape(self, event):
+		self.quit()
+		
+	def enter(self, event):
+		self.register()
 		
 	def get_user_id_from_query(self, result_list):
 		result_string = str(result_list[0])
@@ -283,6 +293,7 @@ class RegisterPage:
 		self.entry_c_password.delete(0, "end")
 		
 	def quit(self):
+		login_page.enable()
 		self.master.destroy()
 		
 	def register(self):
@@ -324,6 +335,7 @@ class RegisterPage:
 					self.reset_entries()
 					self.quit()
 
+# DRAW
 root = Tk()
 login_page = LoginPage(root)
 root.mainloop()
