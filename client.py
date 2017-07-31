@@ -2,7 +2,7 @@
 # July 2017
 # @ Sebit Information & Education Technologies
 # METU Teknokent, Ankara, Turkey
-# v6
+# v7
 
 from Tkinter import *
 from google.cloud import datastore
@@ -32,6 +32,15 @@ def retrieve_user_by_username(username):
 			return int(result_string[index_start : index_end])	
 		else:
 			return (-1)
+def put(thing, w, h):
+	ws = thing.winfo_screenwidth() # width of the screen
+	hs = thing.winfo_screenheight() # height of the screen
+	
+
+	x = (ws/2) - (w/2)
+	y = (hs/2) - (h/2)
+	
+	thing.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
 # PAGES
 class LoginPage():
@@ -131,6 +140,8 @@ class ProfilePage():
 		self.master = master
 		self.master.title("Profile")
 		self.master.protocol("WM_DELETE_WINDOW", self.logout)
+		
+		put(self.master, 490, 75)
 		
 		# create
 		self.label_comment = Label(self.master, text = "Comment:")
@@ -250,6 +261,8 @@ class RegisterPage:
 		self.master.title("Register")
 		self.master.protocol("WM_DELETE_WINDOW", self.quit)
 		
+		put(self.master, 230, 170)
+		
 		self.entry_email = Entry(self.master, width = 10)
 		self.entry_username = Entry(self.master, width = 10)
 		self.entry_password = Entry(self.master, show = "*", width = 10)
@@ -348,5 +361,8 @@ class RegisterPage:
 
 # DRAW
 root = Tk()
+
+put(root, 190, 100)
+
 login_page = LoginPage(root)
 root.mainloop()
