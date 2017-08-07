@@ -28,7 +28,7 @@ for id in car_id_list:
     model = str(ent.get("model"))
     color = str(ent.get("color"))
     year =  str(ent.get("year"))
-    price = str(ent.get("price"))
+    price = "$ " + str("{:,}".format(int( ent.get("price") )))
     power = str(ent.get("power"))
  
     table_str += """
@@ -79,17 +79,18 @@ print """
         <th>Color</th>
         <th>Year</th>
         <th>Price</th>
-        <th>Power</th>
+        <th>Horsepower</th>
     </tr>
 """
  
 print table_str
  
-print "</table>"
+print """</table>
  
-print "<form action=\"http://35.195.58.189/\">"
-print "<input type=\"submit\" value=\"Go back\" />"
-print "</form>"
+<form action=\"http://35.195.58.189/\">
+<input type=\"submit\" value=\"Go back\" />
+</form>
  
-print "</body>"
-print "</html>"
+</body>
+</html>
+"""
